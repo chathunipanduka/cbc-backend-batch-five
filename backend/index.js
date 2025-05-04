@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import productRoutes from './routes/productRouter.js';
 import userRouter from './routes/userRouter.js';
+import orderRouter from './routes/orderRouter.js';
 import jwt from 'jsonwebtoken';
 
 const app = express();
@@ -42,6 +43,7 @@ mongoose.connect("mongodb+srv://admin:123@cluster0.kqs03ld.mongodb.net/?retryWri
 
 app.use("/products" ,productRoutes)
 app.use("/users", userRouter)
+app.use("/orders", orderRouter)
 
 
 
