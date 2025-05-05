@@ -1,6 +1,7 @@
 
 import e from "express";
 import Order from "../models/order.js";
+import Product from "../models/product.js";
 export async function createOrder(req, res) {
   if(req.user == null) {
     res.status(403).json({
@@ -36,7 +37,7 @@ export async function createOrder(req, res) {
 
     for (let i = 0; i < orderInfo.products.length; i++) {
 
-      const item = await Order.findOne({ productID: orderInfo.products[i].productID });
+      const item = await Product.findOne({ productID: orderInfo.products[i].productID });
       if (item == null) {
         res.status(404).json({
           message: "Product with productID " + orderInfo.products[i].productID + " not found.",
@@ -65,7 +66,7 @@ export async function createOrder(req, res) {
       };
 
       total += (item.price * orderInfo.products[i].qty);
-      lablledTotal += (item.labelledPrice * orderInfo.products[i].qty);
+      labelledTotal += (item.labelledPrice * orderInfo.products[i].qty);
 
 
     }
@@ -78,7 +79,7 @@ export async function createOrder(req, res) {
     phone: orderInfo.phone,
     address: orderInfo.address,
     email: req.user.email,
-    total: 0,
+    // total: 0,
     products: products,
     total: total,
     labelledTotal: labelledTotal,
