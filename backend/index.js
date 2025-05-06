@@ -6,6 +6,8 @@ import userRouter from './routes/userRouter.js';
 import orderRouter from './routes/orderRouter.js';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config()
 
 const app = express();
 
@@ -23,22 +25,21 @@ app.use(
                     console.log(decoded)
                     req.user = decoded
                     next()
-        }   else{
+            }   else{
             console.log("Invalid Token")
             res.status(403).json({
                 message:"Invalid Token"
             })    
-        }     
-        }
-    )
+            }     
+            })
         }else{
             next()
         }
 
 }
-)
+);
 
-mongoose.connect("mongodb+srv://admin:123@cluster0.kqs03ld.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
+mongoose.connect(process.env.MONGODB_URL).then(()=>{
     console.log("Database connected");
 }).catch(()=>{
     console.log("Connection Failed");
