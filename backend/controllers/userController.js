@@ -6,44 +6,86 @@ import dotenv from 'dotenv';
 dotenv.config()
 
 
-export function createUser(req,res){
 
-  if (req.body.role == "admin"){
-    if (req.user == null){
-      if (req.user.role != "admin"){
-        res.status(403).json({
-          message: "You are not authorized to create admin accounts."
-        })
-        return
-      }else {
-        res.status(403).json({
-          message: "You are not authorized to create admin accounts. Please login first"
-        })
-      return
+  export function createUser(req, res) {
+  // Securely check for admin creation request
+  if (req.body.role === "admin") {
+    if (!req.user || req.user.role !== "admin") {
+      res.status(403).json({
+        message: req.user
+          ? "You are not authorized to create admin accounts."
+          : "You are not authorized to create admin accounts. Please login first",
+      });
+      return;
     }
-  } 
+  }
 
+  // Hash password
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
 
-  const user= new User({
+  // Create user (role will default to 'customer' if not provided)
+  const user = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
-    password: hashedPassword,    
-    role: req.body.role,
-  })
+    password: hashedPassword,
+    role: req.body.role, // Can be undefined; Mongoose default will apply
+  });
 
-  user.save().then(()=>{
-    res.json({
-      message:"User added successfully"
-    })    
-  }).catch(()=>{
-    res.json({
-      message:"Failed to add User"
-    })          
-  })
+  // Save user to DB
+  user
+    .save()
+    .then(() => {
+      res.status(201).json({
+        message: "User added successfully",
+      });
+    })
+    .catch((err) => {
+      console.error("User creation failed:", err);
+      res.status(500).json({
+        message: "Failed to add User",
+        error: err.message,
+      });
+    });
 }
-}
+
+// export function createUser(req,res){
+//   if (req.body.role == "admin"){
+//     if (req.user == null){
+//       if (req.user.role != "admin"){
+//         res.status(403).json({
+//           message: "You are not authorized to create admin accounts."
+//         })
+//         return
+//       }else {
+//         res.status(403).json({
+//           message: "You are not authorized to create admin accounts. Please login first"
+//         })
+//       return
+//     }
+//   } 
+
+//   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+
+//   const user= new User({
+//     firstName: req.body.firstName,
+//     lastName: req.body.lastName,
+//     email: req.body.email,
+//     password: hashedPassword,    
+//     role: req.body.role,
+//   })
+
+//   user.save().then(()=>{
+//     res.json({
+//       message:"User added successfully"
+//     })    
+//   }).catch(()=>{
+//     res.json({
+//       message:"Failed to add User"
+//     })          
+//   })
+// }
+// }
 
 export function loginUser(req,res){
   const email = req.body.email;
